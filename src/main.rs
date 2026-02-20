@@ -3,6 +3,7 @@ enum Token {
     Print,
     LeftParen,
     RightParen,
+    Equal,
     String(String),
     Int(i64),
     SemiColon,
@@ -26,6 +27,13 @@ impl<'a> Lexer<'a> {
         lexer
     }
 
+    pub fn parse_input(&mut self) {
+        while self.position < self.input.len() {
+            let token = self.next_token();
+            println!("{:?}", token);
+        }
+    }
+
     fn advance(&mut self) {
         self.position += 1;
         if self.position < self.input.len() {
@@ -33,14 +41,12 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn next_token(&mut self) -> Token {
+    fn next_token(&mut self) -> Token {
         let token = match self.current_char {
-            b' ' => {
-                println!("Whitespace");
-                Token::Illegal // temporary
-            }
+            b' ' => Token::Illegal, // temporary
             b'(' => Token::LeftParen,
             b')' => Token::RightParen,
+            b'=' => Token::Equal,
             b';' => Token::SemiColon,
             b'"' => {
                 // Consume string,
@@ -50,9 +56,9 @@ impl<'a> Lexer<'a> {
                 // Consume integer,
                 Token::Illegal // temporary
             }
-            //b'a'..=b'z' | b'A'..='Z' | b'_' => {
-            //    // Consume identifier
-            //}
+            b'a'..=b'z' | b'A'..=b'Z' | b'_' => {
+                return self.consume_identifier();
+            }
             _ => Token::Illegal,
         };
 
@@ -60,14 +66,31 @@ impl<'a> Lexer<'a> {
 
         return token;
     }
+
+    fn consume_identifier(&mut self) -> Token {
+        let starting_position = self.position;
+
+        loop {
+            match self.current_char {
+                b'a'..=b'z' | b'A'..=b'Z' | b'_' => self.advance(),
+                _ => break,
+            }
+        }
+
+        let ending_position = self.position;
+
+        Token::String(self.input[starting_position..ending_position].to_string())
+    }
 }
 
 fn main() {
-    let input = r#"Print("Test");"#;
+    let input = r#"Print("Test"); Some_variable="abc";"#;
 
     let mut lexer = Lexer::new(input);
 
-    for char in input.chars() {
-        println!("{:?}", lexer.next_token());
-    }
+    lexer.parse_input();
+
+    //for char in input.chars() {
+    //    println!("{:?}", lexer.next_token());
+    //}
 }
