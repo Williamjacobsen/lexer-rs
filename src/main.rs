@@ -6,6 +6,7 @@ enum Token {
     Equal,
     String(String),
     Int(i64),
+    Identifier(String),
     SemiColon,
     Illegal,
 }
@@ -79,7 +80,12 @@ impl<'a> Lexer<'a> {
 
         let ending_position = self.position;
 
-        Token::String(self.input[starting_position..ending_position].to_string())
+        let literal = &self.input[starting_position..ending_position];
+
+        match literal {
+            "Print" => Token::Print,
+            _ => Token::Identifier(literal.to_string()),
+        }
     }
 }
 
