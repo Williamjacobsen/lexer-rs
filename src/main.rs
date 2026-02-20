@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 #[derive(Debug)]
 enum Token {
     Print,
@@ -19,7 +20,7 @@ pub struct Lexer<'a> {
 
 impl<'a> Lexer<'a> {
     pub fn new(input: &'a str) -> Self {
-        let mut lexer = Lexer {
+        let lexer = Lexer {
             input,
             current_char: input.as_bytes()[0],
             position: 0,
@@ -132,6 +133,28 @@ impl<'a> Lexer<'a> {
         Token::Int(value)
     }
 }
+
+/*
+Input:
+Print("Test"); Some_variable="abc"; Print(123);
+
+Output:
+
+Print
+LeftParen
+String("Test")
+RightParen
+SemiColon
+Identifier("Some_variable")
+Equal
+String("abc")
+SemiColon
+Print
+LeftParen
+Int(123)
+RightParen
+SemiColon
+ */
 
 fn main() {
     let input = r#"Print("Test"); Some_variable="abc"; Print(123);"#;
