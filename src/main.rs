@@ -40,9 +40,21 @@ impl<'a> Lexer<'a> {
         if self.position < self.input.len() {
             self.current_char = self.input.as_bytes()[self.position];
         }
+
+        self.skip_whitespaces();
+    }
+
+    fn skip_whitespaces(&mut self) {
+        while self.position < self.input.len()
+            && (self.current_char == b' ' || self.current_char == b'\n')
+        {
+            self.advance();
+        }
     }
 
     fn next_token(&mut self) -> Token {
+        self.skip_whitespaces();
+
         let token = match self.current_char {
             b' ' => Token::Illegal, // temporary
             b'(' => Token::LeftParen,
@@ -50,12 +62,10 @@ impl<'a> Lexer<'a> {
             b'=' => Token::Equal,
             b';' => Token::SemiColon,
             b'"' => {
-                // Consume string,
-                Token::Illegal // temporary
+                return self.consume_string();
             }
             b'0'..=b'9' => {
-                // Consume integer,
-                Token::Illegal // temporary
+                return self.consume_integer();
             }
             b'a'..=b'z' | b'A'..=b'Z' | b'_' => {
                 return self.consume_identifier();
@@ -87,16 +97,46 @@ impl<'a> Lexer<'a> {
             _ => Token::Identifier(literal.to_string()),
         }
     }
+
+    fn consume_string(&mut self) -> Token {
+        let starting_position = self.position;
+
+        loop {
+            match self.current_char {
+                b'a'..=b'z' | b'A'..=b'Z' | b'_' | b'"' => self.advance(),
+                _ => break,
+            }
+        }
+
+        let ending_position = self.position;
+
+        Token::String(self.input[starting_position + 1..ending_position - 1].to_string())
+    }
+
+    fn consume_integer(&mut self) -> Token {
+        let starting_position = self.position;
+
+        loop {
+            match self.current_char {
+                b'0'..=b'9' => self.advance(),
+                _ => break,
+            }
+        }
+
+        let ending_position = self.position;
+
+        let literal = &self.input[starting_position..ending_position];
+
+        let value = literal.parse::<i64>().unwrap_or(0);
+
+        Token::Int(value)
+    }
 }
 
 fn main() {
-    let input = r#"Print("Test"); Some_variable="abc";"#;
+    let input = r#"Print("Test"); Some_variable="abc"; Print(123);"#;
 
     let mut lexer = Lexer::new(input);
 
     lexer.parse_input();
-
-    //for char in input.chars() {
-    //    println!("{:?}", lexer.next_token());
-    //}
 }
