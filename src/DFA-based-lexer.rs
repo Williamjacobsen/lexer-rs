@@ -56,7 +56,7 @@ impl<'a> Lexer<'a> {
 
     fn next_token(&mut self) -> Token {
         let mut state = State::Start;
-        let mut token_start = self.position;
+        let token_start = self.position;
 
         loop {
             let current_char = self.input[self.position];

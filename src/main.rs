@@ -1,19 +1,19 @@
-#[path = "handwritten-lexer.rs"]
-mod handwritten_lexer;
+#[path = "Ad-hoc-lexer.rs"]
+mod ad_hoc_lexer;
 
 #[path = "DFA-based-lexer.rs"]
-mod DFA_based_lexer;
+mod dfa_based_lexer;
 
 fn main() {
     let input = r#"Print("Test"); Some_variable="abc"; Print(123);"#;
 
     // handwritten lexer:
-    println!("Handwritten lexer:");
-    let mut lexer = handwritten_lexer::Lexer::new(input);
+    println!("Ad-Hoc lexer:");
+    let mut lexer = ad_hoc_lexer::Lexer::new(input);
     lexer.parse_input();
 
     // DFA-based lexer:
     println!("\nDFA-based lexer:");
-    let mut lexer = DFA_based_lexer::Lexer::new(input);
+    let mut lexer = dfa_based_lexer::Lexer::new(input);
     lexer.parse_input();
 }
