@@ -7,7 +7,7 @@ mod dfa_based_lexer;
 fn main() {
     let input = r#"Print("Test"); Some_variable="abc"; Print(123);"#;
 
-    // handwritten lexer:
+    // Ad-Hoc lexer:
     println!("Ad-Hoc lexer:");
     let mut lexer = ad_hoc_lexer::Lexer::new(input);
     lexer.parse_input();
